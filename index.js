@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 const postcss = require("postcss")
-const valueParser = require("postcss-value-parser")
+const valueParser = require("postcss-values-parser")
 const color = "#639"
 const regexp = /(^|[^\w-])rebeccapurple([^\w-]|$)/
 
@@ -14,11 +14,15 @@ module.exports = postcss.plugin("postcss-color-rebeccapurple", () => (style) => 
     const value = decl.value;
 
     if (value && regexp.test(value)) {
-      decl.value = valueParser(value).walk((node) => {
+      const ast = valueParser(value).parse()
+
+      ast.walk(node => {
         if (node.type === "word" && node.value === "rebeccapurple") {
           node.value = color
         }
-      }).toString()
+      })
+
+      decl.value = ast.toString()
     }
   })
 })
